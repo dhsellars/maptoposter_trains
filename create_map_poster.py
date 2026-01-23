@@ -236,7 +236,17 @@ def get_coordinates(city, country):
     else:
         raise ValueError(f"Could not find coordinates for {city}, {country}")
 
-def create_poster(city, country, point, dist, output_file):
+def get_figure_size(size_option="default"):
+    """
+    Return figure size (width, height) in inches based on size option.
+    """
+    if size_option == "A4":
+        # A4 paper: 8.27 x 11.69 inches
+        return (8.27, 11.69)
+    else:  # default
+        return (12, 16)
+
+def create_poster(city, country, point, dist, output_file, size="default"):
     print(f"\nGenerating map for {city}, {country}...")
     
     # Progress bar for data fetching
@@ -277,7 +287,8 @@ def create_poster(city, country, point, dist, output_file):
     
     # 2. Setup Plot
     print("Rendering map...")
-    fig, ax = plt.subplots(figsize=(12, 16), facecolor=THEME['bg'])
+    figsize = get_figure_size(size)
+    fig, ax = plt.subplots(figsize=figsize, facecolor=THEME['bg'])
     ax.set_facecolor(THEME['bg'])
     ax.set_position([0, 0, 1, 1])
     
@@ -454,6 +465,8 @@ Examples:
     parser.add_argument('--country', '-C', type=str, help='Country name')
     parser.add_argument('--theme', '-t', type=str, default='feature_based', help='Theme name (default: feature_based)')
     parser.add_argument('--distance', '-d', type=int, default=29000, help='Map radius in meters (default: 29000)')
+    parser.add_argument('--size', '-s', type=str, default='default', choices=['default', 'A4'], help='Output size: default (12x16 in) or A4 (8.27x11.69 in) (default: default)')
+    parser.add_argument('--all-themes', action='store_true', help='Create posters for all available themes')
     parser.add_argument('--list-themes', action='store_true', help='List all available themes')
     
     args = parser.parse_args()
@@ -474,6 +487,40 @@ Examples:
         print_examples()
         os.sys.exit(1)
     
+    # If --all-themes is specified, ignore --theme and create posters for all themes
+    if args.all_themes:
+        available_themes = get_available_themes()
+        if not available_themes:
+            print("Error: No themes found in 'themes/' directory.")
+            os.sys.exit(1)
+        
+        print("=" * 50)
+        print("City Map Poster Generator - All Themes")
+        print("=" * 50)
+        print(f"Creating posters for {len(available_themes)} themes...")
+        print()
+        
+        try:
+            coords = get_coordinates(args.city, args.country)
+            
+            for theme_name in available_themes:
+                print(f"\nGenerating poster with theme: {theme_name}")
+                THEME = load_theme(theme_name)
+                output_file = generate_output_filename(args.city, theme_name)
+                create_poster(args.city, args.country, coords, args.distance, output_file, args.size)
+            
+            print("\n" + "=" * 50)
+            print(f"✓ All {len(available_themes)} posters generated successfully!")
+            print("=" * 50)
+            
+        except Exception as e:
+            print(f"\n✗ Error: {e}")
+            import traceback
+            traceback.print_exc()
+            os.sys.exit(1)
+        
+        os.sys.exit(0)
+    
     # Validate theme exists
     available_themes = get_available_themes()
     if args.theme not in available_themes:
@@ -492,7 +539,7 @@ Examples:
     try:
         coords = get_coordinates(args.city, args.country)
         output_file = generate_output_filename(args.city, args.theme)
-        create_poster(args.city, args.country, coords, args.distance, output_file)
+        create_poster(args.city, args.country, coords, args.distance, output_file, args.size)
         
         print("\n" + "=" * 50)
         print("✓ Poster generation complete!")
