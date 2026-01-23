@@ -1,3 +1,5 @@
+The only change in this script from the original is the addition of railways to the output image, with the color being derived from the existing theme's color settings to avoid manually updating old themes.
+
 # City Map Poster Generator
 
 Generate beautiful, minimalist map posters for any city in the world.
