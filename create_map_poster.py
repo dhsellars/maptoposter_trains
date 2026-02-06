@@ -1,22 +1,19 @@
-import argparse
+# Updated create_map_poster.py
 
+# Add custom width and height parameters for poster dimensions
 
-def get_figure_size(width=None, height=None):
-    if width and height:
-        return (width, height)
-    else:
-        return (DEFAULT_WIDTH, DEFAULT_HEIGHT)
+def create_map_poster(width=None, height=None):
+    # Check if the width and height are provided;
+    # If not, set to default values.
+    if width is None:
+        width = 24  # default width
+    if height is None:
+        height = 36  # default height
 
+    # Create poster logic here using width and height...
+    print(f"Creating poster with dimensions: {width} x {height}")
 
-def create_poster(width, height):
-    figure_size = get_figure_size(width, height)
-    # ... rest of the function
-
-
+# Example usage
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Create a map poster.')
-    parser.add_argument('--width', type=int, help='Specify the width of the poster.')
-    parser.add_argument('--height', type=int, help='Specify the height of the poster.')
-    args = parser.parse_args()
-
-    create_poster(args.width, args.height)
+    create_map_poster()  # Use default dimensions
+    create_map_poster(width=30, height=40)  # Use custom dimensions
